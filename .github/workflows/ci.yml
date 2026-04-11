@@ -38,3 +38,33 @@ jobs:
             fi
           done
           exit $failed
+
+  probe-github-token-against-mergify:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Probe Mergify with GITHUB_TOKEN
+        env:
+          GH_ACTIONS_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+
+          probe() {
+            label="$1"
+            url="$2"
+            tmp="$(mktemp)"
+            status="$(curl -sS -o "$tmp" -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_ACTIONS_TOKEN" \
+              "$url")"
+            echo "=== $label ==="
+            echo "status=$status"
+            tr '\n' ' ' < "$tmp" | head -c 400
+            echo
+            rm -f "$tmp"
+          }
+
+          probe "application" "https://api.mergify.com/v1/application"
+          probe "own_repo_scheduled_freeze" "https://api.mergify.com/v1/repos/Nabeel-javed/mergify-ci-probe-1775905336/scheduled_freeze"
+          probe "cross_tenant_scheduled_freeze" "https://api.mergify.com/v1/repos/Mergifyio/mergify/scheduled_freeze"
