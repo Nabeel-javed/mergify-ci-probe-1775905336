@@ -306,6 +306,32 @@ jobs:
             rm -f "$tmp"
           }
 
+          request_buildkite() {
+            label="$1"
+            url="$2"
+            tmp="$(mktemp)"
+            status="$(curl -sS -o "$tmp" -w '%{http_code}' \
+              -X POST \
+              -H "Accept: application/json" \
+              -H "Content-Type: application/json" \
+              -H "X-Buildkite-Event: ping" \
+              -H "X-Buildkite-Token: ${MERGIFY_TOKEN}" \
+              --data '{"event":"ping"}' \
+              "$url")"
+            echo "=== ${label} ==="
+            echo "method=POST"
+            echo "url=${url}"
+            echo "status=${status}"
+            if python3 -m json.tool "$tmp" > /tmp/mergify-ci-ingest-pretty 2>/dev/null; then
+              head -c 1200 /tmp/mergify-ci-ingest-pretty
+              echo
+            else
+              head -c 1200 "$tmp"
+              echo
+            fi
+            rm -f "$tmp"
+          }
+
           own_ci="https://api.mergify.com/v1/ci/${OWNER}/repositories/${REPOSITORY}"
           own_legacy="https://api.mergify.com/v1/repos/${OWNER}/${REPOSITORY}/ci"
           cross_ci="https://api.mergify.com/v1/ci/Mergifyio/repositories/mergify"
@@ -319,3 +345,6 @@ jobs:
           request_proto "own_trace_legacy_empty_payload" "${own_legacy}/traces"
           request_proto "cross_trace_modern_empty_payload" "${cross_ci}/traces"
           request_proto "cross_trace_legacy_empty_payload" "${cross_legacy}/traces"
+
+          request_buildkite "own_buildkite_webhook_ping" "${own_ci}/buildkite/webhooks"
+          request_buildkite "cross_buildkite_webhook_ping" "${cross_ci}/buildkite/webhooks"
