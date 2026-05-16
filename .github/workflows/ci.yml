@@ -66,6 +66,11 @@ jobs:
           }
 
           probe "application" "https://api.mergify.com/v1/application"
+          probe "owner_repositories" "https://api.mergify.com/v1/repos/Nabeel-javed"
+          probe "own_repo_pulls" "https://api.mergify.com/v1/repos/Nabeel-javed/mergify-ci-probe-1775905336/pulls"
+          probe "own_ci_quarantines" "https://api.mergify.com/v1/ci/Nabeel-javed/repositories/mergify-ci-probe-1775905336/quarantines"
+          probe "own_ci_jobs_count" "https://api.mergify.com/v1/ci/Nabeel-javed/jobs_count"
+          probe "own_ci_flaky_context" "https://api.mergify.com/v1/ci/Nabeel-javed/repositories/mergify-ci-probe-1775905336/flaky-detection-context"
           probe "own_repo_scheduled_freeze" "https://api.mergify.com/v1/repos/Nabeel-javed/mergify-ci-probe-1775905336/scheduled_freeze"
           probe "cross_tenant_scheduled_freeze" "https://api.mergify.com/v1/repos/Mergifyio/mergify/scheduled_freeze"
 
