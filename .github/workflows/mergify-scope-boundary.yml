@@ -1,0 +1,107 @@
+name: Mergify Scope Boundary Probe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Probe Mergify API with CI application key
+        env:
+          MERGIFY_TOKEN: ${{ secrets.MERGIFY_TOKEN }}
+          OWNER: Nabeel-javed
+          REPOSITORY: mergify-ci-probe-1775905336
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MERGIFY_TOKEN:-}" ]; then
+            echo "MERGIFY_TOKEN secret is missing"
+            exit 1
+          fi
+
+          base="https://api.mergify.com/v1"
+
+          request() {
+            method="$1"
+            label="$2"
+            path="$3"
+            body="${4:-}"
+            tmp="$(mktemp)"
+            if [ -n "$body" ]; then
+              status="$(curl -sS -o "$tmp" -w '%{http_code}' \
+                -X "$method" \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+                --data "$body" \
+                "${base}${path}")"
+            else
+              status="$(curl -sS -o "$tmp" -w '%{http_code}' \
+                -X "$method" \
+                -H "Accept: application/json" \
+                -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+                "${base}${path}")"
+            fi
+            echo "=== ${label} ==="
+            echo "method=${method}"
+            echo "path=${path}"
+            echo "status=${status}"
+            python3 - "$tmp" <<'PY'
+import json
+import sys
+path = sys.argv[1]
+data = open(path, "rb").read()[:5000]
+try:
+    parsed = json.loads(data or b"null")
+    print(json.dumps(parsed, indent=2, sort_keys=True)[:2000])
+except Exception:
+    print(data.decode("utf-8", "replace")[:2000])
+PY
+            rm -f "$tmp"
+          }
+
+          own="/repos/${OWNER}/${REPOSITORY}"
+          other="/repos/Mergifyio/mergify"
+
+          request GET "application_identity" "/application"
+          request GET "own_logs" "${own}/logs?per_page=1"
+          request GET "own_scheduled_freeze_list" "${own}/scheduled_freeze"
+          request GET "own_queue_pause" "${own}/queue/pause"
+          request GET "own_merge_queue_pause" "${own}/merge-queue/pause"
+          request GET "own_products" "/default_products/${OWNER}"
+          request GET "cross_tenant_scheduled_freeze_list" "${other}/scheduled_freeze"
+          request GET "cross_tenant_logs" "${other}/logs?per_page=1"
+
+          freeze_body='{"reason":"scope-boundary-probe-delete-me","start":null,"end":null,"timezone":"UTC","matching_conditions":[],"exclude_conditions":[]}'
+          request POST "own_scheduled_freeze_create" "${own}/scheduled_freeze" "$freeze_body"
+          request GET "own_scheduled_freeze_list_after_create" "${own}/scheduled_freeze"
+
+          request PUT "own_queue_pause_create" "${own}/queue/pause" '{"reason":"scope-boundary-probe-delete-me"}'
+          request GET "own_queue_pause_after_create" "${own}/queue/pause"
+          request DELETE "own_queue_pause_delete" "${own}/queue/pause"
+          request GET "own_queue_pause_after_delete" "${own}/queue/pause"
+
+          cleanup_tmp="$(mktemp)"
+          curl -sS -o "$cleanup_tmp" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+            "${base}${own}/scheduled_freeze"
+          python3 - "$cleanup_tmp" <<'PY' > /tmp/scope-boundary-freeze-ids
+import json
+import sys
+payload = json.load(open(sys.argv[1]))
+for item in payload.get("scheduled_freezes", []):
+    if item.get("reason") == "scope-boundary-probe-delete-me":
+        print(item["id"])
+PY
+          rm -f "$cleanup_tmp"
+
+          while IFS= read -r freeze_id; do
+            [ -n "$freeze_id" ] || continue
+            request DELETE "own_scheduled_freeze_cleanup_${freeze_id}" "${own}/scheduled_freeze/${freeze_id}" '{"delete_reason":"cleanup scope boundary probe"}'
+          done < /tmp/scope-boundary-freeze-ids
+
+          request GET "own_scheduled_freeze_list_after_cleanup" "${own}/scheduled_freeze"
