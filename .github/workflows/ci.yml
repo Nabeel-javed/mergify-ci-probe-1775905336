@@ -225,6 +225,8 @@ jobs:
           request "ci_owner_unhealthy_test_names" "/ci/${OWNER}/unhealthy-tests/test_names"
           request "ci_owner_retry_rules" "/ci/${OWNER}/retry_rule"
           request "ci_owner_runner_fleet_config" "/ci/${OWNER}/runners/fleet-config"
+          request "owner_slack_integration_config" "/integrations/${OWNER}/configuration/slack"
+          request "owner_datadog_integration_config" "/integrations/${OWNER}/configuration/datadog"
 
           request "own_quarantines" "${own_repo}/quarantines"
           request "own_quarantines_default_branch" "${own_repo}/quarantines/default-branch"
