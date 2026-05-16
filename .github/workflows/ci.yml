@@ -115,17 +115,13 @@ jobs:
             echo "method=${method}"
             echo "path=${path}"
             echo "status=${status}"
-            python3 - "$tmp" <<'PY'
-import json
-import sys
-path = sys.argv[1]
-data = open(path, "rb").read()[:5000]
-try:
-    parsed = json.loads(data or b"null")
-    print(json.dumps(parsed, indent=2, sort_keys=True)[:2000])
-except Exception:
-    print(data.decode("utf-8", "replace")[:2000])
-PY
+            if python3 -m json.tool "$tmp" > /tmp/mergify-probe-pretty 2>/dev/null; then
+              head -c 2000 /tmp/mergify-probe-pretty
+              echo
+            else
+              head -c 2000 "$tmp"
+              echo
+            fi
             rm -f "$tmp"
           }
 
@@ -155,14 +151,7 @@ PY
             -H "Accept: application/json" \
             -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
             "${base}${own}/scheduled_freeze"
-          python3 - "$cleanup_tmp" <<'PY' > /tmp/scope-boundary-freeze-ids
-import json
-import sys
-payload = json.load(open(sys.argv[1]))
-for item in payload.get("scheduled_freezes", []):
-    if item.get("reason") == "scope-boundary-probe-delete-me":
-        print(item["id"])
-PY
+          jq -r '.scheduled_freezes[]? | select(.reason == "scope-boundary-probe-delete-me") | .id' "$cleanup_tmp" > /tmp/scope-boundary-freeze-ids
           rm -f "$cleanup_tmp"
 
           while IFS= read -r freeze_id; do
