@@ -160,3 +160,77 @@ jobs:
           done < /tmp/scope-boundary-freeze-ids
 
           request GET "own_scheduled_freeze_list_after_cleanup" "${own}/scheduled_freeze"
+
+  probe-mergify-ci-hidden-routes:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Probe dashboard-discovered CI routes with CI application key
+        env:
+          MERGIFY_TOKEN: ${{ secrets.MERGIFY_TOKEN }}
+          OWNER: Nabeel-javed
+          REPOSITORY: mergify-ci-probe-1775905336
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MERGIFY_TOKEN:-}" ]; then
+            echo "MERGIFY_TOKEN secret is missing"
+            exit 1
+          fi
+
+          base="https://api.mergify.com/v1"
+
+          request() {
+            label="$1"
+            path="$2"
+            tmp="$(mktemp)"
+            status="$(curl -sS -o "$tmp" -w '%{http_code}' \
+              -H "Accept: application/json" \
+              -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+              "${base}${path}")"
+            echo "=== ${label} ==="
+            echo "path=${path}"
+            echo "status=${status}"
+            if python3 -m json.tool "$tmp" > /tmp/mergify-ci-hidden-pretty 2>/dev/null; then
+              head -c 2200 /tmp/mergify-ci-hidden-pretty
+              echo
+            else
+              head -c 2200 "$tmp"
+              echo
+            fi
+            rm -f "$tmp"
+          }
+
+          own_repo="/ci/${OWNER}/repositories/${REPOSITORY}"
+          cross_repo="/ci/Mergifyio/repositories/mergify"
+
+          request "application_identity" "/application"
+          request "owner_repositories" "/repos/${OWNER}"
+          request "owner_org_users" "/orgs/${OWNER}/users"
+          request "own_repo_users" "/repos/${OWNER}/${REPOSITORY}/users"
+          request "own_repo_config" "/repos/${OWNER}/${REPOSITORY}/config"
+
+          request "ci_owner_jobs_count" "/ci/${OWNER}/jobs_count"
+          request "ci_owner_jobs_names" "/ci/${OWNER}/jobs/names"
+          request "ci_owner_jobs_branches" "/ci/${OWNER}/jobs/branches"
+          request "ci_owner_jobs_runner_names" "/ci/${OWNER}/jobs/runner_names"
+          request "ci_owner_jobs_runner_groups" "/ci/${OWNER}/jobs/runner_group_names"
+          request "ci_owner_unhealthy_test_names" "/ci/${OWNER}/unhealthy-tests/test_names"
+          request "ci_owner_retry_rules" "/ci/${OWNER}/retry_rule"
+          request "ci_owner_runner_fleet_config" "/ci/${OWNER}/runners/fleet-config"
+
+          request "own_quarantines" "${own_repo}/quarantines"
+          request "own_quarantines_default_branch" "${own_repo}/quarantines/default-branch"
+          request "own_quarantines_stats" "${own_repo}/quarantines/stats"
+          request "own_auto_quarantine_config" "${own_repo}/auto-quarantine/config"
+          request "own_flaky_detection_context" "${own_repo}/flaky-detection-context"
+          request "own_tests_setup_status" "${own_repo}/tests-setup-status"
+          request "own_new_tests" "${own_repo}/new-tests"
+          request "own_unhealthy_tests" "${own_repo}/unhealthy-tests"
+
+          request "cross_quarantines" "${cross_repo}/quarantines"
+          request "cross_flaky_detection_context" "${cross_repo}/flaky-detection-context"
+          request "cross_jobs_count" "/ci/Mergifyio/jobs_count"
+          request "cross_runner_fleet_config" "/ci/Mergifyio/runners/fleet-config"
