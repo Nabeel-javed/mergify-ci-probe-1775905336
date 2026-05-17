@@ -1,8 +1,0 @@
-pull_request_rules:
-  - name: codex invalid autofix probe
-    conditions:
-      - base=main
-    actions:
-      label:
-        remove:
-          - invalid-object:
