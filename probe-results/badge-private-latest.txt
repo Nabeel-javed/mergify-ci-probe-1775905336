@@ -1,0 +1,179 @@
+run_id=25976736704
+commit=bd878050dedcc5827ff6a73be8ef8d57804bca01
+timestamp=2026-05-17T00:19:48Z
+
+=== private_badge_config ===
+url=https://api.mergify.com/v1/badges/Nabeel-javed/mergify-ci-probe-1775905336
+status=307
+--- headers ---
+HTTP/2 307 
+date: Sun, 17 May 2026 00:19:48 GMT
+content-type: text/html
+location: https://api.mergify.com/v1/badges/Nabeel-javed/mergify-ci-probe-1775905336/content
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: 4448b04a91b1a45f8f215551295c35d9
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=xST2CXcP%2BZxZq4BzXLGXPkQgXbVEaiRNYT4aTVpCS0vXGI4y4WoMmO5GDlrRyjHMTIJCMNyjrsFQ5AcJFYYnGrt7q7NsLqrecVrSoTV%2BSfFdSbQejJ0TtxpEUA%2F1X0nUaA%3D%3D"}]}
+cf-ray: 9fce73e24b92cf13-SJC
+
+--- body first 1200 bytes ---
+
+
+=== private_badge_content ===
+url=https://api.mergify.com/v1/badges/Nabeel-javed/mergify-ci-probe-1775905336/content
+status=200
+--- headers ---
+HTTP/2 200 
+date: Sun, 17 May 2026 00:19:48 GMT
+content-type: application/json
+content-length: 3830
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: 95b35345b130ad548f215551295c3612;o=1
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FuJqsehw0%2BvwCLVA2Vg4kNPbo6gC3VsMS576Cs8CGRw0tgtYJLBo5gv5v8hJh9tyNEDVrGSzwC9CiStEXNepYyf4PtL34PdmzjFquxJ4xOX9Tx2n0RZHc2MaaJ2trmcj0w%3D%3D"}]}
+cf-ray: 9fce73e33eda679e-SJC
+
+--- body first 1200 bytes ---
+{"label":"Mergify","message":"disabled","color":"critical","logoSvg":"<svg width=\"25\" height=\"25\" viewBox=\"0 0 25 25\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <g clip-path=\"url(#clip0_1083_50505)\">\n        <path fill-rule=\"evenodd\" clip-rule=\"evenodd\"\n            d=\"M12.5 25C19.4036 25 25 19.4036 25 12.5C25 5.59644 19.4036 0 12.5 0C5.59644 0 0 5.59644 0 12.5C0 19.4036 5.59644 25 12.5 25ZM6.33336 10.8363C5.62696 10.5675 5.12502 9.88399 5.12502 9.08325C5.12502 8.04772 5.96449 7.20825 7.00002 7.20825C7.937 7.20825 8.71346 7.89553 8.85276 8.79347C8.95713 8.71964 9.06732 8.65233 9.18336 8.59155C9.65003 8.33599 10.1778 8.20821 10.7667 8.20821C11.3223 8.20821 11.8278 8.33599 12.2834 8.59155C12.6651 8.7964 12.9806 9.07538 13.2297 9.42849C13.499 9.08483 13.828 8.8114 14.2167 8.60821C14.7056 8.34154 15.25 8.20821 15.85 8.20821C16.45 8.20821 16.9889 8.33599 17.4667 8.59155C17.9445 8.83599 18.3223 9.19154 18.6 9.65821C18.8778 10.1249 19.0167 10.6804 19.0167 11.3249V14.3979C19.4863 14.7387 19.7917 15.292 19.7917 15.9165C19.7917 16.9521 18.9523 17.7915 17.9167 17.7915C16.8812 17.7915 16.0417 16.9521 16.0417 15.9165C16.0417 15.2846 16.3543 14.7257 16.8334 14.386V11.
+
+=== private_badge_svg_redirect ===
+url=https://api.mergify.com/v1/badges/Nabeel-javed/mergify-ci-probe-1775905336.svg?style=flat
+status=302
+--- headers ---
+HTTP/2 302 
+date: Sun, 17 May 2026 00:19:48 GMT
+content-type: text/html
+location: https://img.shields.io/endpoint.svg?url=https://api.mergify.com/v1/badges/Nabeel-javed/mergify-ci-probe-1775905336/content&style=flat
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: 4e155bbaa23238f48f215551295c365e
+server: cloudflare
+via: 1.1 google
+cf-cache-status: BYPASS
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=9nnIycE2PErxEK4jjz7xDH5JPUhCiayQ5g50VIwdoA1ug5RAiNjv4TNqRhtwYF033VnPaudwoBlO%2FTf0M%2FZdHpGrKy2k5TpE3SgQdwqBNl4tFXVl2GAjqLZHCtbwTB%2BLVg%3D%3D"}]}
+cf-ray: 9fce73e43a88cd36-SJC
+
+--- body first 1200 bytes ---
+
+
+=== public_badge_config ===
+url=https://api.mergify.com/v1/badges/Mergifyio/docs
+status=307
+--- headers ---
+HTTP/2 307 
+date: Sun, 17 May 2026 00:19:48 GMT
+content-type: text/html
+location: https://api.mergify.com/v1/badges/Mergifyio/docs/content
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: db586de28ed23f6a7e8cfe2e8d935f39
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=EqazED2qxmBUQkjaGuxI%2FKDYMmZvSx%2BUsAQIyGnnX5JAQfABRLJVDYoSugaiTWxV8Mv%2FwLyZyyyz9IS%2BK0ApCHC%2BESdgGVm5j8MK1ZhEou%2F343IBEIRjX1CxmuvmAgNNJA%3D%3D"}]}
+cf-ray: 9fce73e5cab5cf23-SJC
+
+--- body first 1200 bytes ---
+
+
+=== public_badge_content ===
+url=https://api.mergify.com/v1/badges/Mergifyio/docs/content
+status=200
+--- headers ---
+HTTP/2 200 
+date: Sun, 17 May 2026 00:19:49 GMT
+content-type: application/json
+content-length: 3828
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: 3c7661832fb37fa0c6d455d07f035e07
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZZSKMMw78K77V3q%2BmMzGisVZgS1qyI5Fzs8dJi5aqctS3QL%2BEw4e9%2FE%2B1AnGBZR0ER1ryXzDePLXfIXNK%2FeHvN%2FPqsSQHT1Qfquiq%2FaNlH5tjMZl7%2FWbJ87UWjwDRlSl8w%3D%3D"}]}
+cf-ray: 9fce73e68b361321-SJC
+
+--- body first 1200 bytes ---
+{"label":"Mergify","message":"enabled","color":"success","logoSvg":"<svg width=\"25\" height=\"25\" viewBox=\"0 0 25 25\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <g clip-path=\"url(#clip0_1083_50505)\">\n        <path fill-rule=\"evenodd\" clip-rule=\"evenodd\"\n            d=\"M12.5 25C19.4036 25 25 19.4036 25 12.5C25 5.59644 19.4036 0 12.5 0C5.59644 0 0 5.59644 0 12.5C0 19.4036 5.59644 25 12.5 25ZM6.33336 10.8363C5.62696 10.5675 5.12502 9.88399 5.12502 9.08325C5.12502 8.04772 5.96449 7.20825 7.00002 7.20825C7.937 7.20825 8.71346 7.89553 8.85276 8.79347C8.95713 8.71964 9.06732 8.65233 9.18336 8.59155C9.65003 8.33599 10.1778 8.20821 10.7667 8.20821C11.3223 8.20821 11.8278 8.33599 12.2834 8.59155C12.6651 8.7964 12.9806 9.07538 13.2297 9.42849C13.499 9.08483 13.828 8.8114 14.2167 8.60821C14.7056 8.34154 15.25 8.20821 15.85 8.20821C16.45 8.20821 16.9889 8.33599 17.4667 8.59155C17.9445 8.83599 18.3223 9.19154 18.6 9.65821C18.8778 10.1249 19.0167 10.6804 19.0167 11.3249V14.3979C19.4863 14.7387 19.7917 15.292 19.7917 15.9165C19.7917 16.9521 18.9523 17.7915 17.9167 17.7915C16.8812 17.7915 16.0417 16.9521 16.0417 15.9165C16.0417 15.2846 16.3543 14.7257 16.8334 14.386V11.67
+
+=== nonexistent_badge_config ===
+url=https://api.mergify.com/v1/badges/codex-owner-does-not-exist-1775905336/codex-repo-does-not-exist
+status=307
+--- headers ---
+HTTP/2 307 
+date: Sun, 17 May 2026 00:19:49 GMT
+content-type: text/html
+location: https://api.mergify.com/v1/badges/codex-owner-does-not-exist-1775905336/codex-repo-does-not-exist/content
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: dcca3d195b73e1bf7e8cfe2e8d935514
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=P4ENqS1VkKE3kpp7WE6k36OQfgcu7HZBWm0xHXQvpMxe18eUjU%2BmfJGtHn9zKvN8PaAKXhz6adXuiSIy3YqaT4ym%2BtjDkaYbRFKVMpn8rTmFIcQNqZOuTeZmtimvQ4mFkA%3D%3D"}]}
+cf-ray: 9fce73e79e05ae99-SJC
+
+--- body first 1200 bytes ---
+
+
+=== nonexistent_badge_content ===
+url=https://api.mergify.com/v1/badges/codex-owner-does-not-exist-1775905336/codex-repo-does-not-exist/content
+status=200
+--- headers ---
+HTTP/2 200 
+date: Sun, 17 May 2026 00:19:49 GMT
+content-type: application/json
+content-length: 3830
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+permissions-policy: accelerometer=(),ambient-light-sensor=(),attribution-reporting=(),autoplay=(),battery=(),camera=(),clipboard-read=(),clipboard-write=(),conversion-measurement=(),cross-origin-isolated=(),direct-sockets=(),display-capture=(),document-domain=(),encrypted-media=(),execution-while-not-rendered=(),execution-while-out-of-viewport=(),focus-without-user-activation=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),hid=(),idle-detection=(),interest-cohort=(),magnetometer=(),microphone=(),midi=(),navigation-override=(),otp-credentials=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),serial=(),shared-autofill=(),speaker-selection=(),storage-access-api=(),sync-script=(),sync-xhr=(),trust-token-redemption=(),usb=(),vertical-scroll=(),wake-lock=(),web-share=(),window-placement=(),xr-spatial-tracking=()
+content-security-policy: default-src 'none'
+x-cloud-trace-context: faa90cb8b1a203467e8cfe2e8d9353a6
+server: cloudflare
+via: 1.1 google
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=C4iEHQjKhg1L7IeiWH4ABeHN%2FrZpl5X6Umn2GkBg8apBz5JkUFZYPvDg3Nd%2BO0GqshhO7CadinDScjWnwuv3Fffqv8Rin%2F58mMyV1%2BqPxg8%2B7p%2FQY%2B79a9ZasvNzoLFRGw%3D%3D"}]}
+cf-ray: 9fce73e85fd81422-SJC
+
+--- body first 1200 bytes ---
+{"label":"Mergify","message":"disabled","color":"critical","logoSvg":"<svg width=\"25\" height=\"25\" viewBox=\"0 0 25 25\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <g clip-path=\"url(#clip0_1083_50505)\">\n        <path fill-rule=\"evenodd\" clip-rule=\"evenodd\"\n            d=\"M12.5 25C19.4036 25 25 19.4036 25 12.5C25 5.59644 19.4036 0 12.5 0C5.59644 0 0 5.59644 0 12.5C0 19.4036 5.59644 25 12.5 25ZM6.33336 10.8363C5.62696 10.5675 5.12502 9.88399 5.12502 9.08325C5.12502 8.04772 5.96449 7.20825 7.00002 7.20825C7.937 7.20825 8.71346 7.89553 8.85276 8.79347C8.95713 8.71964 9.06732 8.65233 9.18336 8.59155C9.65003 8.33599 10.1778 8.20821 10.7667 8.20821C11.3223 8.20821 11.8278 8.33599 12.2834 8.59155C12.6651 8.7964 12.9806 9.07538 13.2297 9.42849C13.499 9.08483 13.828 8.8114 14.2167 8.60821C14.7056 8.34154 15.25 8.20821 15.85 8.20821C16.45 8.20821 16.9889 8.33599 17.4667 8.59155C17.9445 8.83599 18.3223 9.19154 18.6 9.65821C18.8778 10.1249 19.0167 10.6804 19.0167 11.3249V14.3979C19.4863 14.7387 19.7917 15.292 19.7917 15.9165C19.7917 16.9521 18.9523 17.7915 17.9167 17.7915C16.8812 17.7915 16.0417 16.9521 16.0417 15.9165C16.0417 15.2846 16.3543 14.7257 16.8334 14.386V11.
+
