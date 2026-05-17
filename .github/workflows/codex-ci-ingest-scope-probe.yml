@@ -1,0 +1,97 @@
+name: Codex CI ingest scope probe
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  ci-ingest-scope-probe:
+    if: contains(github.event.head_commit.message, '[run-ci-ingest-scope-probe]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Probe CI ingestion boundaries
+        env:
+          MERGIFY_TOKEN: ${{ secrets.MERGIFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p probe-results
+          out="probe-results/ci-ingest-scope-latest.txt"
+          : > "$out"
+          echo "run_id=${GITHUB_RUN_ID}" >> "$out"
+          echo "commit=${GITHUB_SHA}" >> "$out"
+          echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$out"
+          echo >> "$out"
+
+          if [ -z "${MERGIFY_TOKEN:-}" ]; then
+            echo "MERGIFY_TOKEN secret is missing" >> "$out"
+            exit 0
+          fi
+
+          post_json() {
+            label="$1"
+            url="$2"
+            body="$3"
+            tmp="$(mktemp)"
+            status="$(curl -sS --max-time 25 -o "$tmp" -w '%{http_code}' \
+              -X POST \
+              -H 'Accept: application/json' \
+              -H 'Content-Type: application/json' \
+              -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+              --data "$body" \
+              "$url" || true)"
+            echo "=== ${label} ===" >> "$out"
+            echo "url=${url}" >> "$out"
+            echo "status=${status}" >> "$out"
+            if python3 -m json.tool "$tmp" > /tmp/pretty-probe 2>/dev/null; then
+              head -c 1200 /tmp/pretty-probe >> "$out"
+            else
+              head -c 1200 "$tmp" >> "$out" || true
+            fi
+            echo >> "$out"
+            echo >> "$out"
+            rm -f "$tmp"
+          }
+
+          post_proto_empty() {
+            label="$1"
+            url="$2"
+            tmp="$(mktemp)"
+            status="$(curl -sS --max-time 25 -o "$tmp" -w '%{http_code}' \
+              -X POST \
+              -H 'Accept: application/json' \
+              -H 'Content-Type: application/x-protobuf' \
+              -H "Authorization: Bearer ${MERGIFY_TOKEN}" \
+              --data-binary @/dev/null \
+              "$url" || true)"
+            echo "=== ${label} ===" >> "$out"
+            echo "url=${url}" >> "$out"
+            echo "status=${status}" >> "$out"
+            head -c 1200 "$tmp" >> "$out" || true
+            echo >> "$out"
+            echo >> "$out"
+            rm -f "$tmp"
+          }
+
+          base="https://api.mergify.com/v1"
+          qbody='{"tests_names":["codex_probe_nonexistent_test"],"branch":"main"}'
+          post_json "controlled_quarantine_check" "${base}/ci/Nabeel-javed/repositories/mergify-ci-probe-1775905336/quarantines/check" "$qbody"
+          post_json "other_private_blog_quarantine_check" "${base}/ci/Nabeel-javed/repositories/blog/quarantines/check" "$qbody"
+          post_json "cross_owner_quarantine_check" "${base}/ci/Mergifyio/repositories/docs/quarantines/check" "$qbody"
+          post_proto_empty "controlled_traces_empty" "${base}/ci/Nabeel-javed/repositories/mergify-ci-probe-1775905336/traces"
+          post_proto_empty "other_private_blog_traces_empty" "${base}/ci/Nabeel-javed/repositories/blog/traces"
+          post_proto_empty "cross_owner_traces_empty" "${base}/ci/Mergifyio/repositories/docs/traces"
+
+      - name: Commit probe result
+        run: |
+          set -euo pipefail
+          git config user.name "codex-probe"
+          git config user.email "codex-probe@users.noreply.github.com"
+          git add probe-results/ci-ingest-scope-latest.txt
+          git commit -m "Add CI ingest scope probe result" || exit 0
+          git push
