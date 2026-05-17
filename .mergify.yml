@@ -1,7 +1,0 @@
-pull_request_rules:
-  - name: codex badge privacy probe
-    conditions:
-      - base=main
-    actions:
-      comment:
-        message: codex controlled badge privacy probe
