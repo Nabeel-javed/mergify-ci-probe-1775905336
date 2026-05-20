@@ -1,7 +1,12 @@
 name: Codex hidden private test telemetry probe
 
-on:
+"on":
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/codex-hidden-test-telemetry.yml
 
 permissions:
   contents: read
