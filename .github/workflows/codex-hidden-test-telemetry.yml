@@ -43,7 +43,7 @@ jobs:
               <testcase classname="codex.hidden.private.${PROBE_ID}" name="${PROBE_TEST_NAME}" file="tests/codex_hidden_private_${PROBE_ID}.py" line="1" time="0.001" />
             </testsuite>
           </testsuites>
-XML
+          XML
 
           mergify ci junit-process \
             --repository "${TARGET_REPOSITORY}" \
