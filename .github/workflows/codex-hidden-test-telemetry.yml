@@ -46,11 +46,12 @@ jobs:
           XML
 
           mergify ci junit-process \
+            --token "${MERGIFY_TOKEN}" \
             --repository "${TARGET_REPOSITORY}" \
             --tests-target-branch main \
             --test-framework pytest \
             --test-language python \
-            --test-exit-code 0 \
+            -e 0 \
             reports/codex-hidden-private-junit.xml
 
           echo "uploaded ${PROBE_TEST_NAME} to ${TARGET_REPOSITORY}"
