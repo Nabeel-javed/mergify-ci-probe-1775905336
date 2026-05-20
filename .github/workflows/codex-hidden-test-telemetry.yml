@@ -1,0 +1,51 @@
+name: Codex hidden private test telemetry probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upload-hidden-private-junit:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_REPOSITORY: Nabeel-javed/mergify-ci-leak-probe-1779042010
+      PROBE_ID: "20260520T150430Z"
+      PROBE_JOB_NAME: codex_hidden_private_junit_probe_20260520T150430Z
+      PROBE_TEST_NAME: test_hidden_private_acl_20260520T150430Z
+    steps:
+      - name: Install Mergify CLI
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install mergify-cli
+
+      - name: Upload controlled JUnit result to hidden private repo
+        env:
+          MERGIFY_TOKEN: ${{ secrets.MERGIFY_TOKEN }}
+          MERGIFY_TEST_JOB_NAME: ${{ env.PROBE_JOB_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MERGIFY_TOKEN:-}" ]; then
+            echo "MERGIFY_TOKEN secret is missing"
+            exit 2
+          fi
+
+          mkdir -p reports
+          cat > reports/codex-hidden-private-junit.xml <<XML
+          <testsuites name="codex-hidden-private-junit-${PROBE_ID}" tests="1" failures="0" errors="0" time="0.001">
+            <testsuite name="codex.hidden.private.${PROBE_ID}" tests="1" failures="0" errors="0" time="0.001">
+              <testcase classname="codex.hidden.private.${PROBE_ID}" name="${PROBE_TEST_NAME}" file="tests/codex_hidden_private_${PROBE_ID}.py" line="1" time="0.001" />
+            </testsuite>
+          </testsuites>
+XML
+
+          mergify ci junit-process \
+            --repository "${TARGET_REPOSITORY}" \
+            --tests-target-branch main \
+            --test-framework pytest \
+            --test-language python \
+            --test-exit-code 0 \
+            reports/codex-hidden-private-junit.xml
+
+          echo "uploaded ${PROBE_TEST_NAME} to ${TARGET_REPOSITORY}"
