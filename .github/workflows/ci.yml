@@ -225,6 +225,8 @@ jobs:
           request "ci_owner_unhealthy_test_names" "/ci/${OWNER}/unhealthy-tests/test_names"
           request "ci_owner_retry_rules" "/ci/${OWNER}/retry_rule"
           request "ci_owner_runner_fleet_config" "/ci/${OWNER}/runners/fleet-config"
+          request "owner_slack_integration_config" "/integrations/${OWNER}/configuration/slack"
+          request "owner_datadog_integration_config" "/integrations/${OWNER}/configuration/datadog"
 
           request "own_quarantines" "${own_repo}/quarantines"
           request "own_quarantines_default_branch" "${own_repo}/quarantines/default-branch"
@@ -334,19 +336,25 @@ jobs:
 
           own_ci="https://api.mergify.com/v1/ci/${OWNER}/repositories/${REPOSITORY}"
           own_legacy="https://api.mergify.com/v1/repos/${OWNER}/${REPOSITORY}/ci"
+          same_owner_missing_ci="https://api.mergify.com/v1/ci/${OWNER}/repositories/codex-mergify-missing-repo"
+          same_owner_missing_legacy="https://api.mergify.com/v1/repos/${OWNER}/codex-mergify-missing-repo/ci"
           cross_ci="https://api.mergify.com/v1/ci/Mergifyio/repositories/mergify"
           cross_legacy="https://api.mergify.com/v1/repos/Mergifyio/mergify/ci"
 
           check_body='{"tests_names":["codex_probe_nonexistent_test"],"branch":"main"}'
           request_json POST "own_quarantine_check" "${own_ci}/quarantines/check" "$check_body"
+          request_json POST "same_owner_missing_quarantine_check" "${same_owner_missing_ci}/quarantines/check" "$check_body"
           request_json POST "cross_quarantine_check" "${cross_ci}/quarantines/check" "$check_body"
 
           request_proto "own_trace_modern_empty_payload" "${own_ci}/traces"
           request_proto "own_trace_legacy_empty_payload" "${own_legacy}/traces"
+          request_proto "same_owner_missing_trace_modern_empty_payload" "${same_owner_missing_ci}/traces"
+          request_proto "same_owner_missing_trace_legacy_empty_payload" "${same_owner_missing_legacy}/traces"
           request_proto "cross_trace_modern_empty_payload" "${cross_ci}/traces"
           request_proto "cross_trace_legacy_empty_payload" "${cross_legacy}/traces"
 
           request_buildkite "own_buildkite_webhook_ping" "${own_ci}/buildkite/webhooks"
+          request_buildkite "same_owner_missing_buildkite_webhook_ping" "${same_owner_missing_ci}/buildkite/webhooks"
           request_buildkite "cross_buildkite_webhook_ping" "${cross_ci}/buildkite/webhooks"
 
   probe-mergify-ci-quarantine-mutations:
