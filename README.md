@@ -1,9 +1,5 @@
 # Custom MobileNetV2 on Sony IMX500 — Full Step-by-Step Guide
 
-**Course:** Machine Learning Applications in Automotive Systems
-**Professor:** Thomas Ewender
-**Author:** Nabeel
-**Date:** 2026-05-24
 
 This project takes a MobileNetV2 image classifier, fine-tunes it on the Rock-Paper-Scissors task, quantizes it to 8-bit integers with Sony's toolchain, and deploys it as a `.rpk` file that runs **directly on the Sony IMX500 AI camera** attached to a Raspberry Pi 5. Inference happens on the camera sensor itself — the Pi only reads out the result.
 
@@ -400,11 +396,129 @@ These are in roughly the order we hit them across all three versions.
 
 ---
 
-## 12. References
+## 12. Appendix A — Full timeline of attempts and dead ends
+
+This section is the **honest blow-by-blow** of every approach tried during the project. The README above is the polished recipe; this appendix is "what actually happened on each day, including the things that didn't work". It exists so future-me (and the professor) can see *why* the final pipeline looks the way it does — most decisions were driven by failures that aren't visible in the final code.
+
+### A.1 Stage 0 — Planning (before any code)
+
+- **Original idea:** run Sony's reference notebook verbatim, then add a small custom tweak.
+- **First crossroads:** the plan estimated 5–7 days wall-clock and 10–15 active hours. Actual was closer to **two weekends of evenings + most of a Saturday for v3**, mostly burned on (a) GPU plumbing, (b) the real-vs-CGI domain shift, and (c) live-demo non-ML failures.
+- **Decisions locked early:**
+  - Server for training/quantization/conversion (`dll1404@10.60.5.14`, RTX A5000)
+  - Pi for packaging + inference only
+  - Mac as SSH/SCP relay (server and Pi can't see each other)
+  - TF 2.14 + MCT 2.2.x to match Sony's notebook exactly — minimize version drift
+
+### A.2 Server environment — what broke and what we replaced
+
+| Attempt | What happened | Outcome |
+|---|---|---|
+| **System Python 3.10** | `_bz2` missing → TFDS can't load `rock_paper_scissors` (it's bz2-compressed) | **Abandoned.** Switched to Miniconda Python 3.11. |
+| **pip without `importlib_resources`** | `imxconv-tf` immediately crashes with `ModuleNotFoundError: importlib_resources` | Added to pinned install list. |
+| **System OpenJDK 11** | `imxconv-tf` fails: `UnsupportedClassVersionError: class file version 61.0` (= JDK 17) | Downloaded OpenJDK 17.0.2 tarball to `~/jdk-17.0.2`, no sudo needed. |
+| **TF 2.14 default install (no CUDA)** | `tf.config.list_physical_devices('GPU')` returned `[]` even though A5000 is in `nvidia-smi` | TF wheel ships CPU-only; you need the NVIDIA `cu11` wheels. |
+| **NVIDIA cu11 wheels alone** | GPU now visible, but training crashed inside the **Adam optimizer step** with `libdevice not found at ./libdevice.10.bc` | `libdevice` only ships in the `nvidia-cuda-nvcc-cu11` wheel. Adding it + `XLA_FLAGS=--xla_gpu_cuda_data_dir=...` fixed it. |
+
+**Net result:** the Step 1b incantation in the README looks ceremonial, but every flag in it is there because something blew up without it.
+
+### A.3 v1 — Sony's reference notebook, unchanged
+
+- **Goal:** prove the pipeline end-to-end before any customization.
+- **Method:** single head-only fine-tune on TFDS `rock_paper_scissors` (2520 CGI green-screen images), no augmentation beyond what the notebook does.
+- **Test-set result:** 87.9% overall — **rock 100%, paper 64%, scissors 100%**.
+- **What we noticed:** paper was already weak on the *test set* — a clear sign the head alone couldn't separate paper from rock at the boundary. Quantization barely moved the number.
+- **Live test:** packed to `.rpk`, deployed to Pi. Paper class barely recognized on a real hand.
+- **Verdict:** **Pipeline works end-to-end, model is not good enough.** Two failures to fix: paper class is weak, and (suspected) the model has only seen CGI.
+
+### A.4 v2 — Better training method (still CGI-only)
+
+- **Hypothesis:** paper is weak because the head alone underfits; fine-tuning the backbone top + heavy augmentation should fix it.
+- **Changes from v1:**
+  - **Two-stage schedule:** Stage 1 head-only `Adam(1e-3)` 8 epochs, Stage 2 unfreeze last 50 layers (BN frozen) `Adam(1e-5)` with `EarlyStopping(patience=6)`.
+  - **Heavy augmentation:** brightness ±55, contrast 0.5–1.6, saturation 0.4–1.7, hue ±0.07, 5×5 Gaussian blur σ 0.6–2.4, horizontal flip, rotation ±0.25 turn, zoom ±20%, translation ±10%.
+- **Test-set result (CGI):** **98.4% overall — paper jumped from 64% → 95%.** Beautiful curve.
+- **Quantization:** ~0.3 pp drop, ignorable.
+- **Live test:** rock and scissors mostly worked (≈0.52–0.59 confidence on a real hand); **paper still failed.**
+- **Diagnosis:** classic **domain shift**. The TFDS images are CGI hands on a *green screen with sharp edges and uniform skin tone*. A real hand in a real room has soft edges, varied skin tone, background clutter, and JPEG noise — none of which augmentation can synthesize from scratch.
+- **Verdict:** the training method was now right; the *data* was wrong. Augmentation cannot invent a new domain.
+
+### A.5 v3 — Add real photos (the version that worked)
+
+- **Hypothesis:** if v2 only fails on real hands, train on real hands.
+- **Datasets added:**
+  - **Glushko RPS** (1020 train / 804 val / 540 test) — real webcam photos.
+  - **drgfreeman `rps-cv-images`** (≈2188 images across 3 classes) — real Kaggle photos.
+  - Kept TFDS as the third source so the synthetic data isn't wasted (it's still informative; just not sufficient alone).
+- **Validation policy changed:** use a held-out set of **real** webcam photos (Glushko `test`) as `val_real`, not the CGI test set. This is the metric that actually predicts live behavior.
+- **Same two-stage schedule and augmentation as v2.**
+- **Float result (real-webcam test):** rock 93.6%, paper 86.9%, scissors 96.0%, overall **92.22%**.
+- **Quantized result (what runs on camera):** rock 93.6%, paper 86.4%, scissors 95.5%, overall **91.85%**.
+- **Live test on author's hand:** **60/60 (100%)** at conf 0.58 (rock/paper/scissors 20/20 each).
+- **Verdict:** **shipped.** This is the `.rpk` that runs on the Pi.
+
+### A.6 Live-demo failures that were *not* ML problems
+
+When the v3 `.rpk` first ran live, it looked broken. Three failures, all physical, none requiring a model change. Listing them because each one wasted real time and the diagnosis method is reusable.
+
+1. **"Stuck on 'rock' ~0.40 every frame."**
+   - Saved the camera JPEG with `picamera2.capture_file("frame.jpg")` and opened it. **Pure black.**
+   - Cause: room lights were off ("extremely dark in my room").
+   - Fix: turn the light on.
+   - **Lesson:** if the model is *flat* (same output every frame), the input is probably constant — check the input before touching the model.
+
+2. **"Lights on, still stuck on 'rock' ~0.57 every frame."**
+   - Saved the JPEG again. Camera was pointed at the **desk** — paper bag, cup, pen, no hand in frame.
+   - Fix: aim the camera at a plain wall, hold the hand 20–30 cm in front of the lens so it fills the frame.
+   - **Lesson:** "the model is wrong" usually means "the model never got what you think it got". Always confirm the camera sees what you think it sees.
+
+3. **"Live test seems to miss the gesture."**
+   - The headless capture is ~5 s and starts instantly; faster than you can get into position when running it remotely over SSH.
+   - Fix: wrote `headless_timed.py` with a 12 s countdown before capture and a vote tally over 20 frames.
+
+### A.7 Other potholes that cost real time
+
+| Pothole | What happened | Fix |
+|---|---|---|
+| `class_names did not match subdirectories. Expected: ['paper','rock','rps-cv-images','scissors']` | `image_dataset_from_directory` saw an extra non-class folder inside `extra_data/drg/` | `rm -rf extra_data/drg/rps-cv-images` — keep only the 3 class folders |
+| `AssertionError: Labels file should contain 1000 or 1001 labels` from Sony's stock IMX500 demo | The stock demo hard-codes ImageNet's 1000 classes | Patch the assertion out, or use the 3-class `headless_test.py` / `rps_demo.py` instead |
+| `RuntimeError: Failed to reserve DRM plane` when running `rps_demo.py` over SSH | The preview window needs a real graphical desktop | Run it from a **VNC** desktop terminal (`open vnc://10.52.142.11` from Mac) or use the headless scripts |
+| `pkill -f train_v3.py` killed the SSH session itself | `pkill -f` matches the full command line, including the parent shell command that contains the string `train_v3.py` | Never `pkill -f` on a substring of your own command. Use `pgrep -f` first to *see* the matches, then `kill <pid>` for the python process specifically. |
+| Class order ambiguity | TFDS `rock_paper_scissors` uses `['rock','paper','scissors']` (NOT alphabetical). One careless `sorted()` call → predictions look random | Force `class_names=["rock","paper","scissors"]` everywhere, and write `labels.txt` on the Pi in the same order |
+| Per-class accuracy looking great but *paper* tanking | Side-effect of the above — alphabetical order mislabeled paper as rock and vice versa | Same fix; double-check by printing predictions on a known image |
+| TF 2.14 + CUDA wheel `LD_LIBRARY_PATH` lost on each new shell | The variable doesn't persist across `ssh` sessions | Wrote it directly into the training command (see Step 3) |
+
+### A.8 Things considered but **not** done (and why)
+
+- **Capture our own training photos.** Would push the real-world accuracy from 92% → ~100% for *any* hand, but two public real-hand datasets were enough to clear the bar. Mentioned in §11 as a future extension.
+- **Add a 4th "background / none" class.** Would have made the dark-room and empty-desk failures show up as low confidence rather than a confident wrong answer. Bigger change to retrain + relabel; deferred to §11.
+- **Confidence threshold in the demo** (only show a label above 0.45). Nice UX polish but doesn't affect the model itself; mentioned in §11.
+- **Run the converter on Mac via Docker.** Sony ships a Docker image, but the native Linux path is faster and the server already had everything. Docker only matters if you don't have Linux.
+- **Quantization-aware training (QAT).** MCT supports it, but post-training quantization (PTQ) cost only 0.4 pp here — well below the noise floor — so QAT wasn't worth the extra complexity.
+
+### A.9 Submission-day polish
+
+- Rewrote the README into 12 sections with v1→v2→v3 narrative at the top (§0), troubleshooting table (§8), per-version diff (§10), and this appendix.
+- Recorded a live demo: 184.5 s raw → trimmed to a 19 s H.264 highlight reel at `~/Desktop/rps_demo_final.mp4`, with on-overlay predictions (green if conf ≥ 0.45 else orange) for rock, paper, scissors segments.
+- Synced `~/dit-imx500/README.md` → `~/dit-imx500/submission/README.md` so the submission folder is self-contained.
+- Sources in `submission/source/`: `train_v3.py`, `headless_test.py`, `headless_timed.py`, `rps_demo.py`, plus the original Sony `custom_mobilenet.ipynb` for reference.
+- Proof artifacts in `submission/proof/`: live JPEG, results text dump, demo video, plus the test-set benchmark numbers.
+
+### A.10 What the README *omits* on purpose
+
+For brevity the main README skips:
+- The exact GPU debugging session (~2 h of CUDA/cuDNN/XLA wheel juggling) — distilled to Step 1b.
+- The minute-by-minute live-demo session ("show rock now", "show paper now", with explicit confidence per frame) — distilled to the §7 table.
+- Two intermediate `train_v2_*.py` variants tried during v2 (different augmentation strengths) — abandoned once it was clear augmentation alone couldn't fix domain shift.
+
+If a future reader needs any of the omitted detail, it's in the conversation transcripts referenced in `~/.claude/projects/-Users-Nabeel/` and the per-version memory entries (`project_dit_imx500.md`, `project_dit_imx500_pipeline_works.md`, `project_dit_imx500_v3.md`).
+
+---
+
+## 13. References
 
 - Sony reference notebook — https://github.com/SonySemiconductorSolutions/aitrios-rpi-tutorials-ai-model-training/blob/main/notebooks/mobilenet-rps/custom_mobilenet.ipynb
 - Sony IMX500 converter docs — https://developer.aitrios.sony-semicon.com/en/raspberrypi-ai-camera/develop/imx500-converter/
 - Raspberry Pi IMX500 AI Camera docs — https://www.raspberrypi.com/documentation/accessories/ai-camera.html
 - TFDS rock_paper_scissors — https://www.tensorflow.org/datasets/catalog/rock_paper_scissors
 - Sony Model Compression Toolkit — https://github.com/sony/model_optimization
-
